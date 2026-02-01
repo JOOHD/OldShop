@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  <mapper namespace="com.joo.mapper.BookMapper">
+
+	<!-- criteria(검색조건) -->
+	<sql id="criteria"> <!-- sql id (여러 쿼리에서 반복적인 코드를 <sql> 요소로 사용하여 정의 -->
+		
+		<!-- 예상 ( ) AND / prefixOverrides : prefix의 처음에 나오는 문자 제거, (where문 앞에 AND 제거) -->
+		<trim prefix="where (" suffix=")" prefixOverrides="AND"> 
+			<foreach item="type" collection="typeArr"> 		 <!-- foreach 문 typeArr(type 변수의 데이터를 변수로 변환) -->
+				<trim prefix="AND"> 						 <!-- 조건문끼리 AND로 이어져야 하기 때문에 -->
+					<choose>
+						<when test="type == 'A'.toString()"> <!-- 'A' 값, 그대로 #{type}이 출력이 되는 것이 아니라 조건(when)으로 사용 -->
+							<trim prefixOverrides="or">
+								<foreach item="authorId" collection="authorArr"> <!-- authorId가 배열일 경우 -->
+									<trim prefix="or">		 
+										a.authorId = #{authorId}
+									</trim>
+								</foreach>
+							</trim>
+						</when>
+						<when test="type == 'C'.toString()"> 
+							a.cateCode like '%' || #{cateCode} || '%'
+						</when> 
+						<when test="type == 'T'.toString()"> 
+							bookName like '%' || #{keyword} || '%'
+						</when>  
+					</choose>
+				</trim>
+			</foreach>
+		</trim> 
+
+	</sql>
+	
+	<!-- 상품 검색 -->
+	<select id="getGoodsList" resultType="com.joo.model.BookVO">
+	
+		select bookId, bookName, b.authorName, a.authorId, c.cateName, a.cateCode, publisher, publeYear, bookPrice, bookDiscount
+		from joo_book a left outer join joo_author b on a.authorId = b.authorId
+		left outer join joo_bcate c on a.cateCode = c.cateCode
+		
+		<include refid="criteria"></include>
+		
+		order by bookId desc
+		limit #{skip}, #{amount}
+	
+	</select>
+	
+	<!-- 상품 총 개수 -->
+	<select id="goodsGetTotal" resultType="int">
+	
+		<!-- 수정 (24/03/01) 
+			<sql id="criteria"> 이걸 getGoodsList, goodsGetTotal 공용으로 사용하는 쿼리문<sql>을 사용한다. 
+			그런데 GetTotal 쿼리문에는 이 include:<sql>을 사용할 경우 a라고 지칭한 테이블이 없기 때뮨에 에러 발생,
+				a.authorId = #{authorId}, Total에는 a.이 없어서 문제,
+			따라서 쿼리문의 테이블에도 'a'라는 별칭을 추가.
+		-->
+		select count(*) from joo_book a
+		
+		<include refid="criteria"></include>
+	
+	</select>
+	
+	<!-- 작가 id 리스트 요청 -->
+	<select id="getAuthorIdList" resultType="String">
+	
+		select authorId from joo_author where authorName like concat ('%', #{keyword}, '%')
+	
+	</select>
+	
+	<!-- 국내 카테고리 리스트 -->
+	<select id="getCateCode1" resultType="com.joo.model.CateVO">
+	
+		<![CDATA[
+			select * from joo_bcate where cateCode > 100000 and cateCode < 200000
+		]]>
+	
+	</select>
+	
+	<!-- 국외 카테고리 리스트 -->
+	<select id="getCateCode2" resultType="com.joo.model.CateVO">
+	
+		<![CDATA[
+			select * from joo_bcate where cateCode > 200000 and cateCode < 300000
+		]]>
+	
+	</select>
+	
+	<!-- 검색 대상 카테고리 리스트 -->	
+	<select id="getCateList" resultType="String">
+	
+		select distinct cateCode from joo_book where 
+		<foreach item="type" collection="typeArr">		
+  				<choose>
+  					<when test="type == 'A'.toString()">
+  						<trim prefixOverrides="or">
+		  					<foreach collection="authorArr" item="authorId">
+		  						<trim prefix="or">
+		  							authorId = #{authorId}
+		  						</trim>
+		  					</foreach>  						
+  						</trim>
+  					</when>
+  					<when test="type == 'T'.toString()">
+  						bookName like concat ('%', #{keyword}, '%')
+  					</when>  					
+  				</choose>
+  		</foreach>
+	
+	</select>
+	
+	<!-- 카테고리 정보(+검색대상 갯수) -->		
+	<select id="getCateInfo" resultType="com.joo.model.CateFilterDTO">
+	
+		select DISTINCT count(*) cateCount, a.cateCode,b.cateName from joo_book a left join joo_bcate b on a.cateCode = b.cateCode 
+		
+		where 
+
+		<foreach item="type" collection="typeArr">		
+  				<choose>
+  					<when test="type == 'A'.toString()">					
+  						<trim prefix="(" suffix=")" prefixOverrides="or">					
+		  					<foreach collection="authorArr" item="authorId">	  					
+		  						<trim prefix="or">	  						
+		  							authorId = #{authorId}		  							
+		  						</trim>		  						
+		  					</foreach>		  					  						
+  						</trim>						
+  						and a.cateCode = #{cateCode} 						
+  					</when> 					
+  					<when test="type == 'T'.toString()">					
+  						bookName like concat ('%', #{keyword}, '%') and a.cateCode = #{cateCode} 						 
+  					</when>  					  					
+  				</choose>
+  		</foreach>	
+	</select>
+	
+	<!-- 상품 정보 -->
+	<select id="getGoodsInfo" resultType="com.joo.model.BookVO">
+	
+		select a.bookId, a.bookName, a.authorId, b.authorName, a.publeYear, a.publisher, a.cateCode, c.cateName, a.bookPrice, a.bookStock, a.bookDiscount, a.bookIntro, a.bookContents
+		from joo_book a left outer join joo_author b on a.authorId = b.authorId
+		left outer join joo_bcate c on a.cateCode = c.cateCode
+		where bookId = ${bookId}
+		
+	</select>	
+	
+  </mapper>

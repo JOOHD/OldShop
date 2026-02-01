@@ -1,0 +1,15 @@
+com\joo\mapper\AttachMapperTests.class
+com\joo\controller\MailTestController.class
+com\joo\service\CartServiceTests.class
+com\joo\mapper\OrderMapperTests.class
+com\joo\service\AdminServiceTests.class
+com\joo\service\AuthorServiceTests.class
+com\joo\mapper\AuthorMapperTests.class
+com\joo\mapper\MemberMapperTests.class
+com\joo\task\TaskTest.class
+com\joo\mapper\CartMapperTests.class
+com\joo\persistence\JDBCTest.class
+com\joo\persistence\DataSourceTest.class
+com\joo\service\BookServiceTests.class
+com\joo\mapper\AdminMapperTests.class
+com\joo\mapper\BookMapperTests.class

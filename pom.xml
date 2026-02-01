@@ -13,6 +13,10 @@
 		<org.springframework-version>5.2.8.RELEASE</org.springframework-version>
 		<org.aspectj-version>1.6.10</org.aspectj-version>
 		<org.slf4j-version>1.6.6</org.slf4j-version>
+
+        <!-- ⭐ 추가 -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 	</properties>
 	<dependencies>
 		<!-- Spring -->
@@ -59,13 +63,6 @@
 			<version>${org.slf4j-version}</version>
 			<scope>runtime</scope>
 		</dependency>
-		<!-- <dependency> <groupId>log4j</groupId> <artifactId>log4j</artifactId> 
-			<version>1.2.15</version> <exclusions> <exclusion> <groupId>javax.mail</groupId> 
-			<artifactId>mail</artifactId> </exclusion> <exclusion> <groupId>javax.jms</groupId> 
-			<artifactId>jms</artifactId> </exclusion> <exclusion> <groupId>com.sun.jdmk</groupId> 
-			<artifactId>jmxtools</artifactId> </exclusion> <exclusion> <groupId>com.sun.jmx</groupId> 
-			<artifactId>jmxri</artifactId> </exclusion> </exclusions> <scope>runtime</scope> 
-			</dependency> -->
 
 		<!-- log4j 추가 -->
 		<!-- https://mvnrepository.com/artifact/log4j/log4j -->
@@ -74,7 +71,6 @@
 			<artifactId>log4j</artifactId>
 			<version>1.2.17</version>
 		</dependency>
-
 
 		<!-- spring-test 추가 -->
 		<!-- https://mvnrepository.com/artifact/org.springframework/spring-test -->
@@ -281,6 +277,10 @@
 				<configuration>
 					<source>1.8</source>
 					<target>1.8</target>
+
+                    <!-- ⭐ 추가 -->
+                    <encoding>UTF-8</encoding>
+
 					<compilerArgument>-Xlint:all</compilerArgument>
 					<showWarnings>true</showWarnings>
 					<showDeprecation>true</showDeprecation>

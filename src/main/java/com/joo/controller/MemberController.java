@@ -91,7 +91,7 @@ public class MemberController {
 	
 	@ApiOperation(value = "로그인")
 	@PostMapping(value="login.do")
-	public String loignPOST(HttpServletRequest request, MemberVO member, RedirectAttributes rttr) throws Exception {
+	public String loginPOST(HttpServletRequest request, MemberVO member, RedirectAttributes rttr) throws Exception {
 	
 		
 		/*
